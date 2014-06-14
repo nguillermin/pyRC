@@ -5,23 +5,36 @@
 # June 12, 2014
 
 import socket as so
+import time
+import sys
 
 class Connection:
-    def __init__(self):
+    def __enter__(self):
         """
         Stole most of the skeleton of this code from http://oreilly.com/pub/h/1968
         """
 
-        nick = 'BadMuthaUcka'
+        self.nick = 'BadMuthaUcka'
         port = 6667
         address = 'irc.freenode.net'
-        channel = '#python'
 
         s = so.socket()
         s.connect((address,port))
+        self.s = s
+
+        return self
+
+    def join_server(self):
+        s = self.s
+        nick = self.nick
         s.send("CAP LS\r\n")
 
-        while True:
+        channel = '#humptydumpty'
+
+        running = True
+
+        while running:
+            # Replace this with a receive func
             readbuffer = ''
             readbuffer = readbuffer+s.recv(1024)
             temp = readbuffer.split("\n")
@@ -31,6 +44,8 @@ class Connection:
                 line = line.rstrip()
                 line = line.split()
                 print line
+                if len(line) < 2:
+                    break
 
                 if line[0]=="PING":
                     s.send("PONG %s\r\n" % line[1])
@@ -44,21 +59,30 @@ class Connection:
 
                 if line[1]=="376":
                     s.send(''.join(['JOIN ',channel,'\r\n']))
+                    time.sleep(10)
+                    self.depart_room(channel)
+                    self.leave_server()
+                    running = False
 
-                if line[1]=="470":
-                    print 'Kicked!'
-                    print line[3:]
+    def leave_server(self):
+        self.buffered_send('QUIT\r\n')
 
+    def buffered_send(self,msg):
+        # TODO: Actually write this function
+        self.s.send(msg)
 
-    def __exit__(self):
+    def depart_room(self,channel,goodbye=''):
+        # TODO: Multiple channel quit
+        cmd = ['PART ']
+        cmd.append(channel)
+        if goodbye != '':
+            bye = ''.join([':',goodbye])
+            cmd.append(bye)
+        cmd.append('\r\n')
+        self.buffered_send(''.join(cmd))
+
+    def __exit__(self, type, value, traceback):
         self.s.close()
-
-def connect(server,user,pwd):
-    s = so.socket()
-    port = 12345
-
-    s.connect(('', port))
-    s.close()
 
 def main():
     print "huh?"
