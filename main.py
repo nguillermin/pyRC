@@ -5,10 +5,7 @@
 #import getpass
 
 import client
-import time
 
 if __name__=="__main__":
-    with client.Connection() as c:
-        c.join_server()
-        time.sleep(5)
-        exit(0)
+    c = client.Connection()
+    c.server_connect(('irc.freenode.net',6667))
