@@ -7,5 +7,4 @@
 import client
 
 if __name__=="__main__":
-    c = client.Connection()
-    c.server_connect(('irc.freenode.net',6667))
+    exit(client.Connection('imopen','#humptydumpty'))
