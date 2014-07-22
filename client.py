@@ -1,7 +1,6 @@
 #!/usr/bin/python
 #
 # Basic python client
-# Taken from http://www.tutorialspoint.com/python/python_networking.htm
 # June 12, 2014
 
 import socket as so
@@ -12,10 +11,6 @@ import Queue
 class Connection:
 
     def __init__(self,nick,channel=None):
-        """
-        Stole most of the skeleton of this code from http://oreilly.com/pub/h/1968
-        """
-
         self.nick = nick 
         if channel!= None:
             self.channel = channel
@@ -64,7 +59,7 @@ class Connection:
 
             # Put here all things that need to be responded to.
             if line[0]=="PING":
-                self.buffered_send("PONG %s\r\n" % line[1])
+                pong();
 
             if line[1]=="CAP":
                 if line[3]=="LS" and "multi-prefix" in line[3:]:
@@ -81,7 +76,10 @@ class Connection:
             if line[1]=="JOIN":
                 self.stack.put((self.privmsg,'Hwhaddup playaaaa'))
 
-        return 1
+        return 0 
+
+    def pong():
+        self.buffered_send('PONG\r\n')
 
     def join_channel(self,chan):
         self.channel = chan
@@ -111,7 +109,7 @@ class Connection:
             sent = self.s.send(msg)
             self.buffered_send(msg[sent:])
         else:
-            return
+            return 0
 
     def __exit__(self, type, value, traceback):
         self.s.close()
